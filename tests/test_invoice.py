@@ -37,4 +37,4 @@ def test_empty_invoice_is_zero():
 
 def test_summary_is_strings():
     summary = Invoice("Acme").add("Widget", 1, "1.00").summary()
-    assert summary == {"customer": "Acme", "net": "1.00", "vat": "0.20", "total": "1.20"}
+    assert summary == {"customer": "Acme", "net": "1.00", "discount": "0.00", "vat": "0.20", "total": "1.20"}
