@@ -38,3 +38,30 @@ def test_empty_invoice_is_zero():
 def test_summary_is_strings():
     summary = Invoice("Acme").add("Widget", 1, "1.00").summary()
     assert summary == {"customer": "Acme", "net": "1.00", "vat": "0.20", "total": "1.20"}
+
+
+def test_zero_rated_line_has_no_vat():
+    line = LineItem("Bread", 2, Decimal("1.20"), vat_rate=Decimal("0"))
+    assert line.net == Decimal("2.40")
+    assert line.vat == Decimal("0.00")
+
+
+def test_default_rate_is_standard():
+    assert LineItem("Widget", 1, Decimal("10.00")).vat == Decimal("2.00")
+
+
+def test_mixed_invoice_only_charges_vat_on_standard_lines():
+    inv = Invoice("Cafe").add("Coffee machine", 1, "100.00").add("Books", 3, "10.00", vat_rate="0")
+    assert inv.net_total == Decimal("130.00")
+    assert inv.vat_total == Decimal("20.00")
+    assert inv.total == Decimal("150.00")
+
+
+@pytest.mark.parametrize("rate", ["-0.01", "1", "1.5"])
+def test_rejects_impossible_vat_rates(rate):
+    with pytest.raises(ValueError):
+        LineItem("Odd", 1, Decimal("1.00"), vat_rate=Decimal(rate))
+
+
+def test_accepts_a_rate_just_below_one():
+    assert LineItem("Edge", 1, Decimal("1.00"), vat_rate=Decimal("0.99")).vat == Decimal("0.99")

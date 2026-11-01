@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from decimal import Decimal
 
-from .lines import LineItem
+from .lines import STANDARD_VAT, LineItem
 from .money import to_money
 
 
@@ -10,8 +10,8 @@ class Invoice:
     customer: str
     lines: list = field(default_factory=list)
 
-    def add(self, description: str, quantity: int, unit_price) -> "Invoice":
-        self.lines.append(LineItem(description, quantity, Decimal(str(unit_price))))
+    def add(self, description: str, quantity: int, unit_price, vat_rate=STANDARD_VAT) -> "Invoice":
+        self.lines.append(LineItem(description, quantity, Decimal(str(unit_price)), Decimal(str(vat_rate))))
         return self
 
     @property
